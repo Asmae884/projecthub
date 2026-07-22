@@ -36,7 +36,7 @@ const Navbar = () => {
               <UserIcon className="h-6 w-6 inline-block mr-1" />
               {user?.name}
             </span>
-            <button
+            <button type="button"
               onClick={handleLogout}
               className="text-gray-700 hover:text-red-600"
             >

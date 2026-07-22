@@ -57,7 +57,7 @@ const handleRemoveMember = async (member) => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-semibold text-gray-900">Membres du projet</h3>
-        <button
+        <button type="button"
           onClick={() => setShowAddForm(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
         >
@@ -95,7 +95,7 @@ const handleRemoveMember = async (member) => {
                 </span>
                 {/* ✅ BOUTON CORRIGÉ - Passe l'objet member entier */}
                 {member.pivot?.role !== 'admin' && (
-                  <button
+                  <button type="button"
                     onClick={() => handleRemoveMember(member)}
                     className="text-red-600 hover:text-red-700 text-sm font-medium"
                   >

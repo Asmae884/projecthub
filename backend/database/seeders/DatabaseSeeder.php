@@ -85,59 +85,11 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        $this->command->info('✅ Base de données remplie avec succès !');
-        $this->command->info("👤 Admin: admin@projecthub.com / password");
-        $this->command->info("👤 Users: user1@projecthub.com à user5@projecthub.com / password");
-        $this->command->info("📊 Projets créés: " . $projects->count());
-        $this->command->info("📋 Tâches créées: " . Task::count());
+        $this->command->info(' Base de données remplie avec succès !');
+        $this->command->info(" Admin: admin@projecthub.com / password");
+        $this->command->info("Users: user1@projecthub.com à user5@projecthub.com / password");
+        $this->command->info("Projets créés: " . $projects->count());
+        $this->command->info(" Tâches créées: " . Task::count());
     }
 }
 
-/*namespace Database\Seeders;
-
-use Illuminate\Database\Seeder;
-use App\Models\User;
-use App\Models\Project;
-use App\Models\Task;
-use App\Models\ProjectMember;
-use Illuminate\Support\Facades\Hash;
-
-class DatabaseSeeder extends Seeder
-{
-    public function run()
-    {
-        // Créer un utilisateur admin
-        $admin = User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@projecthub.com',
-            'password' => Hash::make('password'),
-        ]);
-
-        // Créer des utilisateurs
-        $users = User::factory(5)->create();
-
-        // Créer des projets
-        $projects = Project::factory(10)->create([
-            'user_id' => $admin->id,
-        ]);
-
-        // Ajouter des membres aux projets
-        foreach ($projects as $project) {
-            $randomUsers = $users->random(rand(1, 3));
-            foreach ($randomUsers as $user) {
-                ProjectMember::create([
-                    'project_id' => $project->id,
-                    'user_id' => $user->id,
-                    'role' => rand(0, 1) ? 'admin' : 'member',
-                ]);
-            }
-
-            // Créer des tâches pour chaque projet
-            Task::factory(rand(5, 15))->create([
-                'project_id' => $project->id,
-                'created_by' => $admin->id,
-                'assigned_to' => $users->random()->id,
-            ]);
-        }
-    }
-}*/

@@ -36,7 +36,7 @@ export default function Projects() {
           <input className="rounded border p-2" type="date" value={form.start_date} onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
           <input className="rounded border p-2" type="date" value={form.end_date} onChange={(e) => setForm({ ...form, end_date: e.target.value })} />
           <textarea className="md:col-span-2 rounded border p-2" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-          <button className="md:col-span-2 rounded bg-indigo-600 px-4 py-2 text-white">Enregistrer</button>
+          <button type="button" className="md:col-span-2 rounded bg-indigo-600 px-4 py-2 text-white">Enregistrer</button>
         </form>
       </div>
 

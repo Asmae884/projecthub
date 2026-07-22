@@ -143,7 +143,7 @@ const handleAssign = async (taskId, userId) => {
                       <div className="px-4 py-2 text-sm text-gray-700">
                         <div className="font-medium mb-1 text-gray-900"> Changer le statut</div>
                         {statuses.map((status) => (
-                          <button
+                          <button type="button"
                             key={status.value}
                             onClick={() => onStatusChange(task.id, status.value)}
                             className={`block w-full text-left px-2 py-1 text-sm rounded ${
@@ -164,7 +164,7 @@ const handleAssign = async (taskId, userId) => {
                     {({ active }) => (
                       <div className="px-4 py-2 text-sm text-gray-700 border-t">
                         <div className="font-medium mb-1 text-gray-900"> Assigner à</div>
-                        <button
+                        <button type="button"
                           onClick={() => handleAssign(task.id, null)}
                           className={`block w-full text-left px-2 py-1 text-sm rounded ${
                             !task.assigned_to
@@ -180,7 +180,7 @@ const handleAssign = async (taskId, userId) => {
                           <div className="text-gray-400 text-sm px-2 py-1">Aucun membre</div>
                         ) : (
                           memberList.map((member) => (
-                            <button
+                            <button type="button"
                               key={member.id}
                               onClick={() => handleAssign(task.id, member.id)}
                               className={`block w-full text-left px-2 py-1 text-sm rounded ${
@@ -200,7 +200,7 @@ const handleAssign = async (taskId, userId) => {
                   {/* Supprimer */}
                   <Menu.Item>
                     {({ active }) => (
-                      <button
+                      <button type="button"
                         onClick={() => onDelete(task.id)}
                         className={`block w-full text-left px-4 py-2 text-sm text-red-600 border-t ${
                           active ? 'bg-gray-100' : ''

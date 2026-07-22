@@ -72,7 +72,7 @@ const TaskList = ({ projectId }) => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div className="flex flex-wrap gap-2">
           {['all', 'pending', 'in_progress', 'completed'].map((status) => (
-            <button
+            <button type="button"
               key={status}
               onClick={() => setFilter(status)}
               className={`px-3 py-1 rounded-md text-sm transition-colors ${
@@ -85,7 +85,7 @@ const TaskList = ({ projectId }) => {
             </button>
           ))}
         </div>
-        <button
+        <button type="button"
           onClick={() => setShowForm(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
         >

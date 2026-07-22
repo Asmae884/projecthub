@@ -89,7 +89,7 @@ const ProjectDetails = () => {
             >
               Modifier
             </Link>
-            <button
+            <button type="button"
               onClick={handleDelete}
               className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
             >
@@ -102,7 +102,7 @@ const ProjectDetails = () => {
       <div className="bg-white rounded-lg shadow-md">
         <div className="border-b">
           <nav className="flex -mb-px">
-            <button
+            <button type="button"
               onClick={() => setActiveTab('tasks')}
               className={`px-6 py-3 text-sm font-medium transition-colors ${
                 activeTab === 'tasks'
@@ -112,7 +112,7 @@ const ProjectDetails = () => {
             >
                Tâches ({project.tasks?.length || 0})
             </button>
-            <button
+            <button type="button"
               onClick={() => setActiveTab('members')}
               className={`px-6 py-3 text-sm font-medium transition-colors ${
                 activeTab === 'members'

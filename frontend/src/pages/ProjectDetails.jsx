@@ -74,7 +74,7 @@ export default function ProjectDetails() {
               <option value="completed">Terminée</option>
             </select>
             <textarea className="rounded border p-2" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-            <button className="rounded bg-indigo-600 px-4 py-2 text-white">Créer la tâche</button>
+            <button type="button" className="rounded bg-indigo-600 px-4 py-2 text-white">Créer la tâche</button>
           </form>
         </div>
 
@@ -86,7 +86,7 @@ export default function ProjectDetails() {
               <option value="member">Membre</option>
               <option value="admin">Admin</option>
             </select>
-            <button className="rounded bg-slate-800 px-4 py-2 text-white">Ajouter</button>
+            <button type="button" className="rounded bg-slate-800 px-4 py-2 text-white">Ajouter</button>
           </form>
           <div className="mt-6">
             <h4 className="mb-2 font-semibold">Membres</h4>

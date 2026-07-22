@@ -27,7 +27,7 @@ export default function Register() {
           <input className="w-full rounded border px-3 py-2" placeholder="Nom" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           <input className="w-full rounded border px-3 py-2" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           <input className="w-full rounded border px-3 py-2" type="password" placeholder="Mot de passe" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-          <button className="w-full rounded bg-indigo-600 px-4 py-2 font-medium text-white">S'inscrire</button>
+          <button type="button" className="w-full rounded bg-indigo-600 px-4 py-2 font-medium text-white">S'inscrire</button>
         </form>
         <p className="mt-4 text-sm text-slate-600">Déjà un compte ? <Link className="text-indigo-600" to="/login">Se connecter</Link></p>
       </div>

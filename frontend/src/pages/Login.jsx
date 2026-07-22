@@ -26,7 +26,7 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input className="w-full rounded border px-3 py-2" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           <input className="w-full rounded border px-3 py-2" type="password" placeholder="Mot de passe" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-          <button className="w-full rounded bg-indigo-600 px-4 py-2 font-medium text-white">Se connecter</button>
+          <button type="button" className="w-full rounded bg-indigo-600 px-4 py-2 font-medium text-white">Se connecter</button>
         </form>
         <p className="mt-4 text-sm text-slate-600">Pas encore de compte ? <Link className="text-indigo-600" to="/register">Créer un compte</Link></p>
       </div>

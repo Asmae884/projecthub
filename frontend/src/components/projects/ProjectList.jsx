@@ -104,7 +104,7 @@ const ProjectList = () => {
       {projectList.links && (
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           {projectList.links.map((link, index) => (
-            <button
+            <button type="button"
               key={index}
               onClick={() => link.url && setCurrentPage(new URL(link.url).searchParams.get('page'))}
               className={`px-3 py-1 rounded-md transition-colors ${
