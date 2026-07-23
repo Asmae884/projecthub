@@ -1,29 +1,45 @@
-FROM php:8.2-fpm-alpine
+FROM php:8.2-fpm-alpine AS base
 
-# Variables pour composer
 ENV COMPOSER_NO_INTERACTION=1
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-RUN apt-get update && apt-get install -y \
-    git curl libpng-dev libonig-dev libxml2-dev zip unzip \
+RUN apk add --no-cache \
+    git \
+    curl \
+    libpng-dev \
+    oniguruma-dev \
+    libxml2-dev \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    zip \
+    unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+RUN adduser -D appuser \
+    && addgroup appuser www-data \
+    && chown -R appuser:www-data /var/www/html
+
 WORKDIR /var/www/html
 
-COPY . .
+COPY composer.json composer.lock ./
+RUN composer install --no-interaction --no-scripts --no-autoloader
 
-RUN composer install --no-interaction --optimize-autoloader
+COPY --chown=appuser:www-data . .
 
-RUN if [ ! -f .env ]; then cp .env.example .env; fi
+RUN composer dump-autoload --optimize --no-interaction
 
-RUN php artisan key:generate
+RUN if [ ! -f .env ]; then cp .env.example .env; fi \
+    && php artisan key:generate
 
-RUN chown -R www-data:www-data /var/www/html \
+RUN chown -R appuser:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
+USER appuser
+
 EXPOSE 8000
 
-CMD php artisan serve --host=0.0.0.0 --port=8000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
