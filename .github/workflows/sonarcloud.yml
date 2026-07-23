@@ -59,7 +59,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_CLOUD }}
         with:
           args: >
-            -Dsonar.organization=Asmae884
+            -Dsonar.organization=asmae884
             -Dsonar.projectKey=Asmae884_projecthub
             -Dsonar.sources=backend/app,frontend/src
             -Dsonar.exclusions=**/vendor/**,**/node_modules/**,**/tests/**,**/storage/**,**/build/**
