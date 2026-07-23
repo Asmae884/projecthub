@@ -1,0 +1,96 @@
+name: Trivy Security Scan
+
+on:
+  push:
+    branches:
+      - main
+      - version2
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * 0'  # Tous les dimanches à minuit
+
+jobs:
+  trivy-scan:
+    name:  Trivy Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+      - name:  Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      # ===== SCAN DU CODE SOURCE =====
+      - name:  Scan Backend Dependencies
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: './backend'
+          format: 'sarif'
+          output: 'trivy-backend-fs.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name:  Scan Frontend Dependencies
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: './frontend'
+          format: 'sarif'
+          output: 'trivy-frontend-fs.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      # ===== SCAN DES IMAGES DOCKER =====
+      - name:  Build Backend Image
+        run: |
+          docker build -t projecthub-backend:latest -f backend/Dockerfile ./backend
+
+      - name:  Build Frontend Image
+        run: |
+          docker build -t projecthub-frontend:latest -f frontend/Dockerfile ./frontend
+
+      - name:  Scan Backend Image
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: 'projecthub-backend:latest'
+          format: 'sarif'
+          output: 'trivy-backend-image.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name:  Scan Frontend Image
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: 'projecthub-frontend:latest'
+          format: 'sarif'
+          output: 'trivy-frontend-image.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      # ===== UPLOAD DES RÉSULTATS =====
+      - name:  Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-backend-fs.sarif'
+          category: 'trivy-backend-fs'
+
+      - name:  Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-frontend-fs.sarif'
+          category: 'trivy-frontend-fs'
+
+      - name:  Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-backend-image.sarif'
+          category: 'trivy-backend-image'
+
+      - name:  Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-frontend-image.sarif'
+          category: 'trivy-frontend-image'
