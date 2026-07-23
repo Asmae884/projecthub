@@ -1,0 +1,64 @@
+name: SonarCloud Analysis
+
+on:
+  push:
+    branches:
+      - main
+      - version2
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  sonarcloud:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl, pdo_mysql, xml, json, tokenizer
+          tools: composer
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          composer install --no-interaction --prefer-dist --no-progress
+          cp .env.example .env || true
+          php artisan key:generate
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci --ignore-scripts --frozen-lockfile
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build || true
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_CLOUD }}
+        with:
+          args: >
+            -Dsonar.organization=asmae884
+            -Dsonar.projectKey=Asmae884_projecthub
+            -Dsonar.sources=backend/app,frontend/src
+            -Dsonar.exclusions=**/vendor/**,**/node_modules/**,**/tests/**,**/storage/**,**/build/**
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=600
+            -Dsonar.branch.name=${{ github.ref_name }}
+            -Dsonar.branch.target=main
