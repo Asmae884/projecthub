@@ -61,11 +61,7 @@ const TaskList = ({ projectId }) => {
     return labels[status] || status;
   };
 
-  const getStatusCount = (status) => {
-    if (!taskList.data) return 0;
-    if (status === 'all') return taskList.data.length;
-    return taskList.data.filter(task => task.status === status).length;
-  };
+
 
   return (
     <div>
@@ -81,7 +77,7 @@ const TaskList = ({ projectId }) => {
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              {getStatusLabel(status)} ({getStatusCount(status)})
+              {getStatusLabel(status)} 
             </button>
           ))}
         </div>
@@ -89,7 +85,7 @@ const TaskList = ({ projectId }) => {
           onClick={() => setShowForm(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
         >
-          + Ajouter une tâche
+           Ajouter une tâche
         </button>
       </div>
 

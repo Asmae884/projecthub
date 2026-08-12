@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
 
         $middleware->validateCsrfTokens(except: [
-            'api/*',  // ← Exclure les routes API de la vérification CSRF
+            'api/*',  
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

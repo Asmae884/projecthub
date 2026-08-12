@@ -1,118 +1,145 @@
-import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import axios from 'axios'
-import toast from 'react-hot-toast'
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { projects } from '../api';
+import TaskList from '../components/tasks/TaskList';
+import MemberList from '../components/members/MemberList';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import DocumentUpload from '../components/DocumentUpload';
+import GeneratedTasks from '../components/GeneratedTasks';
 
-export default function ProjectDetails() {
-  const { id } = useParams()
-  const [project, setProject] = useState(null)
-  const [tasks, setTasks] = useState([])
-  const [members, setMembers] = useState([])
-  const [form, setForm] = useState({ title: '', description: '', status: 'pending', priority: 'medium', due_date: '' })
-  const [memberForm, setMemberForm] = useState({ email: '', role: 'member' })
+const ProjectDetails = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('tasks');
+  const [refreshSuggestions, setRefreshSuggestions] = useState(false);
 
-  const load = async () => {
-    const [projectRes, tasksRes, membersRes] = await Promise.all([
-      axios.get(`/projects/${id}`),
-      axios.get(`/projects/${id}/tasks`),
-      axios.get(`/projects/${id}/members`),
-    ])
-    setProject(projectRes.data)
-    setTasks(tasksRes.data.data || [])
-    setMembers(membersRes.data || [])
-  }
-
-  useEffect(() => { load() }, [id])
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const loadProject = async () => {
+    setLoading(true);
     try {
-      await axios.post(`/projects/${id}/tasks`, form)
-      toast.success('Tâche créée')
-      setForm({ title: '', description: '', status: 'pending', priority: 'medium', due_date: '' })
-      load()
-    } catch {
-      toast.error('Erreur lors de la création')
+      const response = await projects.get(id);
+      setProject(response.data);
+    } catch (error) {
+      console.error('Error loading project:', error);
+      navigate('/projects');
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  const handleAddMember = async (e) => {
-    e.preventDefault()
-    try {
-      await axios.post(`/projects/${id}/members`, memberForm)
-      toast.success('Membre ajouté')
-      setMemberForm({ email: '', role: 'member' })
-      load()
-    } catch {
-      toast.error('Impossible d’ajouter le membre')
+  useEffect(() => {
+    loadProject();
+  }, [id]);
+
+  const handleDelete = async () => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
+      try {
+        await projects.delete(id);
+        navigate('/projects');
+      } catch (error) {
+        console.error('Error deleting project:', error);
+        alert('Erreur lors de la suppression');
+      }
     }
-  }
+  };
 
-  if (!project) return <div>Chargement...</div>
+  const handleUploadSuccess = () => {
+    setRefreshSuggestions(prev => !prev);
+  };
+
+  if (loading) return <LoadingSpinner />;
+  if (!project) return null;
+
+  const getStatusColor = (status) => {
+    const colors = {
+      active: 'bg-green-100 text-green-800',
+      completed: 'bg-blue-100 text-blue-800',
+      paused: 'bg-yellow-100 text-yellow-800',
+    };
+    return colors[status] || 'bg-gray-100 text-gray-800';
+  };
+
+  const getStatusLabel = (status) => {
+    const labels = {
+      active: 'Actif',
+      completed: 'Terminé',
+      paused: 'En pause',
+    };
+    return labels[status] || status;
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl bg-white p-6 shadow-sm">
-        <h2 className="text-2xl font-semibold">{project.name}</h2>
-        <p className="mt-2 text-slate-600">{project.description}</p>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-xl font-semibold">Ajouter une tâche</h3>
-          <form onSubmit={handleSubmit} className="grid gap-4">
-            <input className="rounded border p-2" placeholder="Titre" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
-            <select className="rounded border p-2" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}>
-              <option value="low">Faible</option>
-              <option value="medium">Moyenne</option>
-              <option value="high">Élevée</option>
-            </select>
-            <input className="rounded border p-2" type="date" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} />
-            <select className="rounded border p-2" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-              <option value="pending">En attente</option>
-              <option value="in_progress">En cours</option>
-              <option value="completed">Terminée</option>
-            </select>
-            <textarea className="rounded border p-2" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-            <button type="button" className="rounded bg-indigo-600 px-4 py-2 text-white">Créer la tâche</button>
-          </form>
-        </div>
-
-        <div className="rounded-xl bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-xl font-semibold">Ajouter un membre</h3>
-          <form onSubmit={handleAddMember} className="grid gap-4">
-            <input className="rounded border p-2" placeholder="Email du membre" value={memberForm.email} onChange={(e) => setMemberForm({ ...memberForm, email: e.target.value })} required />
-            <select className="rounded border p-2" value={memberForm.role} onChange={(e) => setMemberForm({ ...memberForm, role: e.target.value })}>
-              <option value="member">Membre</option>
-              <option value="admin">Admin</option>
-            </select>
-            <button type="button" className="rounded bg-slate-800 px-4 py-2 text-white">Ajouter</button>
-          </form>
-          <div className="mt-6">
-            <h4 className="mb-2 font-semibold">Membres</h4>
-            <div className="space-y-2">
-              {members.map((member) => (
-                <div key={member.id} className="flex items-center justify-between rounded border p-3">
-                  <span>{member.name} ({member.email})</span>
-                  <span className="text-sm text-slate-500">{member.pivot?.role || 'member'}</span>
-                </div>
-              ))}
+    <div className="space-y-6 fade-in">
+      {/* Infos projet */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
+            {project.description && (
+              <p className="text-gray-600 mt-2">{project.description}</p>
+            )}
+            <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-500">
+              <span> {project.creator?.name || 'N/A'}</span>
+              <span> {new Date(project.start_date).toLocaleDateString('fr-FR')}</span>
+              {project.end_date && (
+                <span> Fin: {new Date(project.end_date).toLocaleDateString('fr-FR')}</span>
+              )}
+              <span className={`px-2 py-1 rounded-full ${getStatusColor(project.status)}`}>
+                {getStatusLabel(project.status)}
+              </span>
             </div>
+          </div>
+          <div className="flex gap-2">
+            <Link to={`/projects/${id}/edit`} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+              Modifier
+            </Link>
+            <button onClick={handleDelete} className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
+              Supprimer
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-4">
-        {tasks.map((task) => (
-          <div key={task.id} className="rounded-xl bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h4 className="font-semibold">{task.title}</h4>
-              <span className="rounded bg-slate-100 px-2 py-1 text-sm">{task.status}</span>
-            </div>
-            <p className="mt-2 text-sm text-slate-600">{task.description}</p>
-          </div>
-        ))}
+      {/*  SECTION RAG */}
+      <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
+        <DocumentUpload projectId={id} onUploadSuccess={handleUploadSuccess} />
+        <GeneratedTasks projectId={id} key={refreshSuggestions} />
+      </div>
+
+      {/* Tâches et membres */}
+      <div className="bg-white rounded-lg shadow-md">
+        <div className="border-b">
+          <nav className="flex -mb-px">
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`px-6 py-3 text-sm font-medium ${
+                activeTab === 'tasks'
+                  ? 'border-b-2 border-blue-600 text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+               Tâches 
+            </button>
+            <button
+              onClick={() => setActiveTab('members')}
+              className={`px-6 py-3 text-sm font-medium ${
+                activeTab === 'members'
+                  ? 'border-b-2 border-blue-600 text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+                Membres 
+            </button>
+          </nav>
+        </div>
+        <div className="p-6">
+          {activeTab === 'tasks' && <TaskList projectId={id} project={project} />}
+          {activeTab === 'members' && <MemberList projectId={id} project={project} />}
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default ProjectDetails;

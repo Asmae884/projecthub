@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { projects } from '../../api';
+import { projects } from '../../api'; 
 import TaskList from '../tasks/TaskList';
 import MemberList from '../members/MemberList';
 import LoadingSpinner from '../common/LoadingSpinner';
+
+
+import DocumentUpload from '../DocumentUpload';
+import GeneratedTasks from '../GeneratedTasks';
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -11,6 +15,7 @@ const ProjectDetails = () => {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('tasks');
+  const [refreshSuggestions, setRefreshSuggestions] = useState(false);
 
   const loadProject = async () => {
     setLoading(true);
@@ -41,6 +46,10 @@ const ProjectDetails = () => {
     }
   };
 
+  const handleUploadSuccess = () => {
+    setRefreshSuggestions(prev => !prev);
+  };
+
   if (loading) return <LoadingSpinner />;
   if (!project) return null;
 
@@ -64,6 +73,7 @@ const ProjectDetails = () => {
 
   return (
     <div className="space-y-6 fade-in">
+      {/* === SECTION PROJET === */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -75,7 +85,7 @@ const ProjectDetails = () => {
               <span> {project.creator?.name || 'N/A'}</span>
               <span> {new Date(project.start_date).toLocaleDateString('fr-FR')}</span>
               {project.end_date && (
-                <span> Fin: {new Date(project.end_date).toLocaleDateString('fr-FR')}</span>
+                <span>Fin: {new Date(project.end_date).toLocaleDateString('fr-FR')}</span>
               )}
               <span className={`px-2 py-1 rounded-full ${getStatusColor(project.status)}`}>
                 {getStatusLabel(project.status)}
@@ -89,7 +99,8 @@ const ProjectDetails = () => {
             >
               Modifier
             </Link>
-            <button type="button"
+            <button
+              type="button"
               onClick={handleDelete}
               className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
             >
@@ -99,10 +110,18 @@ const ProjectDetails = () => {
         </div>
       </div>
 
+      {/*  SECTION RAG : UPLOAD + SUGGESTIONS IA */}
+      <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
+        <DocumentUpload projectId={id} onUploadSuccess={handleUploadSuccess} />
+        <GeneratedTasks projectId={id} key={refreshSuggestions} />
+      </div>
+
+      {/* === SECTION TÂCHES ET MEMBRES === */}
       <div className="bg-white rounded-lg shadow-md">
         <div className="border-b">
           <nav className="flex -mb-px">
-            <button type="button"
+            <button
+              type="button"
               onClick={() => setActiveTab('tasks')}
               className={`px-6 py-3 text-sm font-medium transition-colors ${
                 activeTab === 'tasks'
@@ -112,7 +131,8 @@ const ProjectDetails = () => {
             >
                Tâches ({project.tasks?.length || 0})
             </button>
-            <button type="button"
+            <button
+              type="button"
               onClick={() => setActiveTab('members')}
               className={`px-6 py-3 text-sm font-medium transition-colors ${
                 activeTab === 'members'

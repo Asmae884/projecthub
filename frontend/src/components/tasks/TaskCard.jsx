@@ -7,7 +7,7 @@ const TaskCard = ({ task, onStatusChange, onDelete, projectId, onTaskUpdate }) =
   const [memberList, setMemberList] = useState([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
 
-  // Charger les membres du projet
+  
   useEffect(() => {
     if (projectId) {
       loadMembers();
@@ -28,23 +28,21 @@ const TaskCard = ({ task, onStatusChange, onDelete, projectId, onTaskUpdate }) =
 
 const handleAssign = async (taskId, userId) => {
   try {
-    console.log('Assigning task:', { taskId, userId, type: typeof userId }); // DEBUG
+    console.log('Assigning task:', { taskId, userId, type: typeof userId }); 
     
-    // S'assurer que userId est un entier ou null
-    const data = { assigned_to: userId ? parseInt(userId) : null };
-    console.log('Sending data:', data); // DEBUG
+    const data = { assigned_to: userId ? Number.parseInt(userId) : null };
+    console.log('Sending data:', data); 
     
     const response = await tasks.update(projectId, taskId, data);
-    console.log('Response:', response.data); // DEBUG
+    console.log('Response:', response.data);
     
     if (onTaskUpdate) {
       onTaskUpdate();
     }
   } catch (error) {
     console.error('Error assigning task:', error);
-    console.error('Error response:', error.response?.data); // DEBUG
+    console.error('Error response:', error.response?.data); 
     
-    // Afficher le message d'erreur détaillé
     const errorMessage = error.response?.data?.errors 
       ? Object.values(error.response.data.errors).flat().join(', ')
       : error.response?.data?.message || 'Erreur lors de l\'assignation';
@@ -159,7 +157,7 @@ const handleAssign = async (taskId, userId) => {
                     )}
                   </Menu.Item>
 
-                  {/* Assigner à un membre */}
+                  {}
                   <Menu.Item>
                     {({ active }) => (
                       <div className="px-4 py-2 text-sm text-gray-700 border-t">
@@ -197,7 +195,7 @@ const handleAssign = async (taskId, userId) => {
                     )}
                   </Menu.Item>
 
-                  {/* Supprimer */}
+                  {}
                   <Menu.Item>
                     {({ active }) => (
                       <button type="button"

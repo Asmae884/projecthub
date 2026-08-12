@@ -1,0 +1,21 @@
+project_name   = 
+environment    = 
+location       =  
+
+
+#Azure Credentials
+
+subscription_id = 
+client_id       = 
+client_secret   = 
+tenant_id       = 
+
+
+mysql_admin_password = 
+
+# Laravel APP_KEY 
+laravel_app_key = 
+
+# Tags des images Docker
+backend_image_tag  = 
+frontend_image_tag = 

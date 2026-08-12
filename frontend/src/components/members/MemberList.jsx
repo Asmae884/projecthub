@@ -1,4 +1,4 @@
-// frontend/src/components/members/MemberList.jsx
+
 
 import React, { useState, useEffect } from 'react';
 import { members } from '../../api';
@@ -28,10 +28,9 @@ const MemberList = ({ projectId }) => {
 
   
 const handleRemoveMember = async (member) => {
-  // ✅ MAINTENANT, pivot.id EXISTE !
+
   const memberId = member.pivot?.id;
   
-  // Si pivot.id n'existe pas, fallback sur member.id
   const finalId = memberId || member.id;
   
   if (!finalId) {
@@ -41,7 +40,7 @@ const handleRemoveMember = async (member) => {
 
   if (window.confirm(`Êtes-vous sûr de vouloir retirer ${member.name} du projet ?`)) {
     try {
-      console.log('🗑️ Suppression avec ID:', finalId);
+      console.log(' Suppression avec ID:', finalId);
       await members.remove(projectId, finalId);
       await loadMembers();
     } catch (error) {
@@ -93,7 +92,7 @@ const handleRemoveMember = async (member) => {
                 }`}>
                   {member.pivot?.role === 'admin' ? 'Administrateur' : 'Membre'}
                 </span>
-                {/* ✅ BOUTON CORRIGÉ - Passe l'objet member entier */}
+                {}
                 {member.pivot?.role !== 'admin' && (
                   <button type="button"
                     onClick={() => handleRemoveMember(member)}

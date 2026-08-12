@@ -17,7 +17,6 @@ const TaskForm = ({ projectId, onClose, onSuccess }) => {
     assigned_to: '',
   });
 
-  // Charger les membres du projet
   useEffect(() => {
     loadProjectMembers();
   }, [projectId]);
@@ -181,7 +180,7 @@ const TaskForm = ({ projectId, onClose, onSuccess }) => {
             </select>
             {!loadingMembers && memberList.length === 0 && (
               <p className="text-sm text-yellow-600 mt-1">
-                ⚠️ Ce projet n'a pas de membres. Ajoutez-en d'abord dans l'onglet "Membres".
+                 Ce projet n'a pas de membres. Ajoutez-en d'abord dans l'onglet "Membres".
               </p>
             )}
           </div>

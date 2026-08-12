@@ -20,7 +20,7 @@ class DashboardController extends Controller
             })
             ->count();
 
-        // Tasks statistics
+   
         $allTasks = Task::whereHas('project', function ($query) use ($user) {
             $query->where('user_id', $user->id)
                 ->orWhereHas('members', function ($q) use ($user) {
@@ -33,13 +33,11 @@ class DashboardController extends Controller
         $inProgressTasks = (clone $allTasks)->where('status', 'in_progress')->count();
         $pendingTasks = (clone $allTasks)->where('status', 'pending')->count();
 
-        // Recent tasks
         $recentTasks = $allTasks->with(['project', 'assignee'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
-        // Tasks by project
         $tasksByProject = Task::selectRaw('projects.name, COUNT(tasks.id) as count')
             ->join('projects', 'tasks.project_id', '=', 'projects.id')
             ->whereHas('project', function ($query) use ($user) {
@@ -51,7 +49,6 @@ class DashboardController extends Controller
             ->groupBy('projects.id', 'projects.name')
             ->get();
 
-        // Tasks by status for pie chart
         $tasksByStatus = [
             'pending' => $pendingTasks,
             'in_progress' => $inProgressTasks,

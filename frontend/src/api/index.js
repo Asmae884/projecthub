@@ -1,6 +1,6 @@
 import api from './axios';
 
-// Auth
+
 export const auth = {
   register: (data) => api.post('/register', data),
   login: (data) => api.post('/login', data),
@@ -8,12 +8,12 @@ export const auth = {
   getUser: () => api.get('/user'),
 };
 
-// Dashboard
+
 export const dashboard = {
   getStats: () => api.get('/dashboard'),
 };
 
-// Projects
+
 export const projects = {
   getAll: (params) => api.get('/projects', { params }),
   get: (id) => api.get(`/projects/${id}`),
@@ -22,7 +22,7 @@ export const projects = {
   delete: (id) => api.delete(`/projects/${id}`),
 };
 
-// Tasks
+
 export const tasks = {
   getAll: (projectId, params) => api.get(`/projects/${projectId}/tasks`, { params }),
   get: (projectId, taskId) => api.get(`/projects/${projectId}/tasks/${taskId}`),
@@ -33,7 +33,7 @@ export const tasks = {
   delete: (projectId, taskId) => api.delete(`/projects/${projectId}/tasks/${taskId}`),
 };
 
-// Members
+
 export const members = {
   getAll: (projectId) => api.get(`/projects/${projectId}/members`),
   getList: (projectId) => api.get(`/projects/${projectId}/members/list`),
@@ -44,7 +44,7 @@ export const members = {
     api.delete(`/projects/${projectId}/members/${memberId}`),
 };
 
-// Users (AJOUTER CETTE PARTIE)
+
 export const users = {
   getAll: () => api.get('/users'),
 };
