@@ -115,39 +115,44 @@ terraform apply again (or restart the App Services / ACI) so they pick up the ne
 
 Infrastructure is defined as code in infra/ using Terraform (VNet, Application Gateway + WAF, App Services, RAG container, MySQL, Key Vault, Azure OpenAI, Container Registry).
 
-bash
+```bash
 cd infra-terraform
 terraform init
 terraform plan
 terraform apply
+```
 Pushing images to Azure Container Registry
 
 The App Services and the RAG container pull their images from Azure Container Registry (ACR) — they do not build from source. Before deploying (or after any code change), all three images must be built and pushed to ACR.
 
 The registry name follows ${var.project_name}${var.environment}acr2026 (see azurerm_container_registry.main in infra/) — replace <acr-name> below with your actual registry name (find it with terraform output or az acr list -o table).
 
-bash
+```bash
 # Log in to the registry
 az acr login --name <acr-name>
-
+```
+```bash
 # Backend
 cd projecthub-backend
 docker build -t <acr-name>.azurecr.io/backend:latest .
 docker push <acr-name>.azurecr.io/backend:latest
-
+```
+```bash
 # Frontend
 cd ../projecthub-frontend
 docker build -t <acr-name>.azurecr.io/frontend:latest .
 docker push <acr-name>.azurecr.io/frontend:latest
-
+```
+```bash
 # RAG microservice
 cd ../projecthub-rag
 docker build -t <acr-name>.azurecr.io/rag:latest .
 docker push <acr-name>.azurecr.io/rag:latest
-
+```
 After pushing new images, restart the corresponding Azure resource to pull the latest version (resource names follow the same ${var.project_name}-${var.environment}-* pattern — check terraform output or the Azure portal for your exact names):
 
-bash
+```bash
 az webapp restart --resource-group <resource-group> --name <backend-app-name>
 az webapp restart --resource-group <resource-group> --name <frontend-app-name>
 az container restart --resource-group <resource-group> --name <rag-container-name>
+```
