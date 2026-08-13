@@ -72,11 +72,10 @@ On startup, the container automatically waits for the database, clears Laravel's
 
 ```bash
 cd projecthub-frontend
-docker build --build-arg REACT_APP_API_URL=/api -t projecthub-frontend .
+docker build -t projecthub-frontend .
 docker run -p 80:80 projecthub-frontend
 ```
 
-`REACT_APP_API_URL` is baked in at build time (React env vars are compiled into the static bundle, not read at runtime).
 
 ### RAG microservice
 
@@ -99,13 +98,56 @@ docker run -p 8001:8001 --env-file .env projecthub-rag
 ```
 
 
-## Deployment
+### Deployment
 
-Infrastructure is defined as code in `infra-terraform/` using Terraform (VNet, Application Gateway + WAF, App Services, RAG container, MySQL, Key Vault, Azure OpenAI, Container Registry).
+Prerequisites
+Azure CLI installed and logged in (az login), with access to the target subscription
+Terraform installed
+Access to the remote Terraform state storage account (backend configured in infra/)
+A terraform.tfvars file with the required secrets (mysql_admin_password, laravel_app_key, etc. — never commit this file)
+First-time deployment order
 
-```bash
+On a brand-new environment, terraform apply alone is not enough to get a working app: it provisions the Azure Container Registry (ACR), but the App Services and the RAG container won't have an image to pull yet.
+
+terraform apply — creates all infrastructure, including the empty ACR
+Build and push all three images to ACR (see below)
+terraform apply again (or restart the App Services / ACI) so they pick up the newly pushed images
+
+Infrastructure is defined as code in infra/ using Terraform (VNet, Application Gateway + WAF, App Services, RAG container, MySQL, Key Vault, Azure OpenAI, Container Registry).
+
+bash
 cd infra-terraform
 terraform init
 terraform plan
 terraform apply
-```
+Pushing images to Azure Container Registry
+
+The App Services and the RAG container pull their images from Azure Container Registry (ACR) — they do not build from source. Before deploying (or after any code change), all three images must be built and pushed to ACR.
+
+The registry name follows ${var.project_name}${var.environment}acr2026 (see azurerm_container_registry.main in infra/) — replace <acr-name> below with your actual registry name (find it with terraform output or az acr list -o table).
+
+bash
+# Log in to the registry
+az acr login --name <acr-name>
+
+# Backend
+cd projecthub-backend
+docker build -t <acr-name>.azurecr.io/backend:latest .
+docker push <acr-name>.azurecr.io/backend:latest
+
+# Frontend
+cd ../projecthub-frontend
+docker build -t <acr-name>.azurecr.io/frontend:latest .
+docker push <acr-name>.azurecr.io/frontend:latest
+
+# RAG microservice
+cd ../projecthub-rag
+docker build -t <acr-name>.azurecr.io/rag:latest .
+docker push <acr-name>.azurecr.io/rag:latest
+
+After pushing new images, restart the corresponding Azure resource to pull the latest version (resource names follow the same ${var.project_name}-${var.environment}-* pattern — check terraform output or the Azure portal for your exact names):
+
+bash
+az webapp restart --resource-group <resource-group> --name <backend-app-name>
+az webapp restart --resource-group <resource-group> --name <frontend-app-name>
+az container restart --resource-group <resource-group> --name <rag-container-name>
